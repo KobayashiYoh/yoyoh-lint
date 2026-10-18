@@ -87,15 +87,17 @@ export default [
 
 ## ルール一覧
 
-| ルール | 内容 |
-| --- | --- |
-| [`yoyoh/no-single-line-if`](#yoyohno-single-line-if) | if 文を1行で記述しない |
-| [`yoyoh/require-logical-expression-variable`](#yoyohrequire-logical-expression-variable) | `&&` と `\|\|` を合わせて2つ以上含む論理式は説明変数に格納する |
-| [`yoyoh/no-non-throwing-statement-in-try`](#yoyohno-non-throwing-statement-in-try) | try ブロックには例外を投げうる処理だけを記述する |
-| [`yoyoh/require-named-arguments`](#yoyohrequire-named-arguments) | 関数呼び出しの引数はオブジェクト1つにまとめて名前付きで渡す |
-| [`yoyoh/prefer-positive-operand-first`](#yoyohprefer-positive-operand-first) | 複合条件では肯定条件を否定条件より先に記述する |
+| ルール | 内容 | 自動修正 |
+| --- | --- | --- |
+| [`yoyoh/no-single-line-if`](#yoyohno-single-line-if) | if 文を1行で記述しない | ○ |
+| [`yoyoh/require-logical-expression-variable`](#yoyohrequire-logical-expression-variable) | `&&` と `\|\|` を合わせて2つ以上含む論理式は説明変数に格納する | - |
+| [`yoyoh/no-non-throwing-statement-in-try`](#yoyohno-non-throwing-statement-in-try) | try ブロックには例外を投げうる処理だけを記述する | - |
+| [`yoyoh/require-named-arguments`](#yoyohrequire-named-arguments) | 関数呼び出しの引数はオブジェクト1つにまとめて名前付きで渡す | - |
+| [`yoyoh/prefer-positive-operand-first`](#yoyohprefer-positive-operand-first) | 複合条件では肯定条件を否定条件より先に記述する | ○ |
 
-いずれのルールも型情報を使わないため、JavaScript と TypeScript の両方で同じように動作します。自動修正には対応していません。
+いずれのルールも型情報を使わないため、JavaScript と TypeScript の両方で同じように動作します。
+
+自動修正（`--fix`）に対応しているのは、動作を変えずに書き換えられるルールだけです。説明変数の名前を決める、文を try の外へ移す、関数のシグネチャを変えるといった修正は機械的にできないため、それ以外のルールは報告のみです。
 
 ### `yoyoh/no-single-line-if`
 
@@ -115,6 +117,7 @@ if (isValid) {
 - if と else の本体がブロックの場合、`{` と `}` が同じ行にあると報告します。空のブロック `{}` も対象です。
 - 本体がブロックでない場合、本体が条件式の `)` や `else` と同じ行にあると報告します。
 - `else if` は、続く if 文として個別に検査します。
+- 自動修正では、本体を if や else と同じ行のインデント + 2 スペースで改行して展開します。ブロック内の文は1行に1文ずつ並べます。コメントを含む場合は修正しません。
 
 ### `yoyoh/require-logical-expression-variable`
 
@@ -210,6 +213,7 @@ if (isActive && !isDeleted) {
 - 同じ演算子でつながった項がすべて、識別子・プロパティ参照（`a.b`、`a?.b`、`a["b"]`）・それらの否定である場合だけを対象にします。関数呼び出しなどを含む条件は、評価順の入れ替えで副作用が変わりうるため対象外です。
 - 否定条件より後ろにある肯定条件が、否定条件の値のプロパティを参照している場合は報告しません（例: `!user || user.isAdmin` は並べ替えると `user` が `null` のときに例外になる）。
 - 真偽値だけが使われる位置（if・while・do-while・for・三項演算子の条件、`!` の被演算子）にある論理式だけを対象にします。変数に格納する論理式は、並べ替えると値が変わりうるため対象外です（例: `!a && b` は `false` か `b` を返す）。
+- 自動修正では、肯定条件と否定条件をそれぞれ元の順序のまま、肯定条件を先に並べ替えます（例: `!a && b && !c && d` → `b && d && !a && !c`）。コメントを含む場合は修正しません。
 - if / else の条件全体が否定になっているケースは、ESLint 本体の `no-negated-condition` で検査してください。
 
 ## 開発
