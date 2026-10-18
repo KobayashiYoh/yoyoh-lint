@@ -129,6 +129,7 @@ function collectBaseObjects(node) {
 export default {
   meta: {
     type: "suggestion",
+    fixable: "code",
     docs: {
       description: "複合条件の中で、否定条件を肯定条件より先に記述することを禁止する",
     },
@@ -162,6 +163,26 @@ export default {
       });
     }
 
+    /**
+     * 肯定条件を元の順序のまま先頭に、否定条件を元の順序のまま後ろに並べ替える修正を作る。
+     * @param {import("estree").LogicalExpression} node
+     * @param {import("estree").Expression[]} operands
+     * @returns {import("eslint").Rule.ReportFixer | null}
+     */
+    function createFix(node, operands) {
+      if (sourceCode.getCommentsInside(node).length > 0) {
+        return null;
+      }
+
+      const positiveOperands = operands.filter((operand) => !isNegation(operand));
+      const negatedOperands = operands.filter(isNegation);
+      const reorderedText = [...positiveOperands, ...negatedOperands]
+        .map((operand) => sourceCode.getText(operand))
+        .join(` ${node.operator} `);
+
+      return (fixer) => fixer.replaceText(node, reorderedText);
+    }
+
     return {
       LogicalExpression(node) {
         if (!isTargetLogicalExpression(node)) {
@@ -193,7 +214,11 @@ export default {
           return;
         }
 
-        context.report({ node: operands[firstNegatedIndex], messageId: "negatedFirst" });
+        context.report({
+          node: operands[firstNegatedIndex],
+          messageId: "negatedFirst",
+          fix: createFix(node, operands),
+        });
       },
     };
   },
