@@ -1,0 +1,34 @@
+{
+  "name": "yoyoh-lint",
+  "version": "0.1.0",
+  "description": "自分のコーディング規約を検査する ESLint プラグイン",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^10.13.0"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "packageManager": "pnpm@11.1.3",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KobayashiYoh/yoyoh-lint.git"
+  },
+  "license": "UNLICENSED"
+}
