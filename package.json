@@ -20,7 +20,9 @@
     "eslint": ">=9.0.0"
   },
   "devDependencies": {
-    "eslint": "^10.13.0"
+    "@typescript-eslint/parser": "^8.71.2",
+    "eslint": "^10.13.0",
+    "typescript": "~6.0.3"
   },
   "engines": {
     "node": ">=20.19.0"
