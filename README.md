@@ -91,13 +91,12 @@ export default [
 | --- | --- | --- |
 | [`yoyoh/no-single-line-if`](#yoyohno-single-line-if) | if 文を1行で記述しない | ○ |
 | [`yoyoh/require-logical-expression-variable`](#yoyohrequire-logical-expression-variable) | `&&` と `\|\|` を合わせて2つ以上含む論理式は説明変数に格納する | - |
-| [`yoyoh/no-non-throwing-statement-in-try`](#yoyohno-non-throwing-statement-in-try) | try ブロックには例外を投げうる処理だけを記述する | - |
 | [`yoyoh/require-named-arguments`](#yoyohrequire-named-arguments) | 関数呼び出しの引数はオブジェクト1つにまとめて名前付きで渡す | - |
 | [`yoyoh/prefer-positive-operand-first`](#yoyohprefer-positive-operand-first) | 複合条件では肯定条件を否定条件より先に記述する | ○ |
 
 いずれのルールも型情報を使わないため、JavaScript と TypeScript の両方で同じように動作します。
 
-自動修正（`--fix`）に対応しているのは、動作を変えずに書き換えられるルールだけです。説明変数の名前を決める、文を try の外へ移す、関数のシグネチャを変えるといった修正は機械的にできないため、それ以外のルールは報告のみです。
+自動修正（`--fix`）に対応しているのは、動作を変えずに書き換えられるルールだけです。説明変数の名前を決める、関数のシグネチャを変えるといった修正は機械的にできないため、それ以外のルールは報告のみです。
 
 ### `yoyoh/no-single-line-if`
 
@@ -141,37 +140,6 @@ if (canExecute) {
 - 変数の初期化、代入の右辺、クラスのフィールドの初期値にそのまま書かれた論理式は、説明変数とみなして許可します。
 - 演算子の数は、括弧や `!` の内側にネストしたものも合わせて数えます（例: `a && !(b || c)` は2つ）。
 - `??` は数えません。`??` や関数呼び出しで区切られた論理式は、それぞれ別の論理式として数えます。
-
-### `yoyoh/no-non-throwing-statement-in-try`
-
-try ブロックに、例外を投げうる処理以外を記述することを禁止します。
-
-```js
-// NG
-try {
-  const retryCount = 3;
-  await execute(retryCount);
-} catch (error) {
-  throw new ApplicationError("処理に失敗した", { cause: error });
-}
-
-// OK
-const retryCount = 3;
-
-try {
-  await execute(retryCount);
-} catch (error) {
-  throw new ApplicationError("処理に失敗した", { cause: error });
-}
-```
-
-- try ブロックに書けるのは、次のいずれかの文だけです。
-  - `throw` 文
-  - 関数呼び出し・`await`・`new`・タグ付きテンプレート・動的 `import()`・`yield` を含む式文、変数宣言、`return` 文
-- if や for などの制御構文、ブロック、関数宣言は報告します。
-- 関数式やアロー関数の中身は、定義した時点では実行されないため、例外を投げうる処理として扱いません。
-- プロパティ参照（`a.b`）は例外を投げうる処理として扱いません。
-- catch ブロックと finally ブロックは対象外です。
 
 ### `yoyoh/require-named-arguments`
 
