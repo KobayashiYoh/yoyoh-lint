@@ -21,12 +21,12 @@ ruleTester.run("no-single-line-if", rule, {
     { code: "if (isValid) {}", output: "if (isValid) {\n}", errors: [error] },
     {
       code: "if (isValid) execute();",
-      output: "if (isValid)\n  execute();",
+      output: "if (isValid) {\n  execute();\n}",
       errors: [error],
     },
     {
       code: "if (\n  isValid\n) execute();",
-      output: "if (\n  isValid\n)\n  execute();",
+      output: "if (\n  isValid\n) {\n  execute();\n}",
       errors: [error],
     },
     {
@@ -36,7 +36,7 @@ ruleTester.run("no-single-line-if", rule, {
     },
     {
       code: "if (isValid) {\n  execute();\n} else handle();",
-      output: "if (isValid) {\n  execute();\n} else\n  handle();",
+      output: "if (isValid) {\n  execute();\n} else {\n  handle();\n}",
       errors: [error],
     },
     {
@@ -46,7 +46,7 @@ ruleTester.run("no-single-line-if", rule, {
     },
     {
       code: "if (isValid) execute(); else handle();",
-      output: "if (isValid)\n  execute(); else\n  handle();",
+      output: "if (isValid) {\n  execute();\n} else {\n  handle();\n}",
       errors: [error, error],
     },
     {
@@ -72,7 +72,7 @@ ruleTester.run("no-single-line-if", rule, {
     },
     {
       code: "function run() {\n  if (a) b();\n}",
-      output: "function run() {\n  if (a)\n    b();\n}",
+      output: "function run() {\n  if (a) {\n    b();\n  }\n}",
       errors: [error],
     },
     {
@@ -86,8 +86,23 @@ ruleTester.run("no-single-line-if", rule, {
       errors: [error],
     },
     {
+      code: "function run() {\n  if (total !== undefined) summary.total = total;\n}",
+      output: "function run() {\n  if (total !== undefined) {\n    summary.total = total;\n  }\n}",
+      errors: [error],
+    },
+    {
+      code: "if (isValid) execute(); // 説明",
+      output: "if (isValid) {\n  execute();\n} // 説明",
+      errors: [error],
+    },
+    {
+      code: "if (a) b(); else if (c) d(); else e();",
+      output: "if (a) {\n  b();\n} else if (c) {\n  d();\n} else {\n  e();\n}",
+      errors: [error, error, error],
+    },
+    {
       code: "if (isValid) execute({\n  a: 1,\n});",
-      output: "if (isValid)\n  execute({\n  a: 1,\n});",
+      output: "if (isValid) {\n  execute({\n  a: 1,\n});\n}",
       errors: [error],
     },
     {
@@ -119,7 +134,7 @@ typeScriptRuleTester.run("no-single-line-if (TypeScript)", rule, {
     },
     {
       code: "if (value as boolean) execute<string>();",
-      output: "if (value as boolean)\n  execute<string>();",
+      output: "if (value as boolean) {\n  execute<string>();\n}",
       errors: [error],
     },
     {

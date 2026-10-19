@@ -11,7 +11,7 @@ export default {
     docs: {
       description: "if 文を1行で記述することを禁止する",
     },
-    fixable: "whitespace",
+    fixable: "code",
     schema: [],
     messages: {
       singleLine: "if 文は複数行で記述してください。",
@@ -45,7 +45,7 @@ export default {
     }
 
     /**
-     * 分岐の本体を複数行に展開する修正関数を生成する。コメントを含む場合は修正しない。
+     * 分岐の本体を波括弧で囲んだ複数行に展開する修正関数を生成する。コメントを含む場合は修正しない。
      * @param {import("estree").Statement} body if または else の本体
      * @returns {import("eslint").Rule.ReportFixer | null}
      */
@@ -60,8 +60,9 @@ export default {
       const bodyIndent = baseIndent + INDENT_UNIT;
 
       if (body.type !== "BlockStatement") {
-        return (fixer) =>
-          fixer.replaceTextRange([precedingToken.range[1], body.range[0]], `\n${bodyIndent}`);
+        const bracedText = ` {\n${bodyIndent}${sourceCode.getText(body)}\n${baseIndent}}`;
+
+        return (fixer) => fixer.replaceTextRange([precedingToken.range[1], body.range[1]], bracedText);
       }
 
       if (sourceCode.getCommentsInside(body).length > 0) {
