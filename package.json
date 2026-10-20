@@ -1,6 +1,6 @@
 {
   "name": "yoyoh-lint",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "自分のコーディング規約を検査する ESLint プラグイン",
   "type": "module",
   "exports": {

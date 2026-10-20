@@ -94,7 +94,7 @@ export default [
 | [`yoyoh/require-named-arguments`](#yoyohrequire-named-arguments) | 関数呼び出しの引数はオブジェクト1つにまとめて名前付きで渡す | - |
 | [`yoyoh/prefer-positive-operand-first`](#yoyohprefer-positive-operand-first) | 複合条件では肯定条件を否定条件より先に記述する | ○ |
 
-いずれのルールも型情報を使わないため、JavaScript と TypeScript の両方で同じように動作します。
+いずれのルールも JavaScript と TypeScript の両方で動作します。型情報は必須ではありませんが、`yoyoh/require-named-arguments` は型情報があるとより正確に判定できます。
 
 自動修正（`--fix`）に対応しているのは、動作を変えずに書き換えられるルールだけです。説明変数の名前を決める、関数のシグネチャを変えるといった修正は機械的にできないため、それ以外のルールは報告のみです。
 
@@ -143,7 +143,7 @@ if (canExecute) {
 
 ### `yoyoh/require-named-arguments`
 
-関数呼び出しの引数を、オブジェクトリテラル1つにまとめて名前付きで渡すことを強制します。
+プロジェクト内で定義された関数の呼び出しで、引数をオブジェクトリテラル1つにまとめて名前付きで渡すことを強制します。
 
 ```js
 // NG
@@ -157,8 +157,15 @@ execute();
 
 - 引数のない呼び出しは許可します。
 - 引数がオブジェクトリテラル1つ以外（複数の引数、変数、配列、スプレッド構文、コールバック関数など）の場合に報告します。
-- 外部ライブラリや組み込み関数の呼び出し（`console.log(message)`、`items.map(callback)` など）も対象です。必要に応じてファイル単位で無効化してください。
-- `super(...)` も関数呼び出しとして対象にします。`new` 式は対象外です。
+- 引数の形を決められる、プロジェクト内で定義された関数の呼び出しだけを検査します。組み込み関数や外部ライブラリの呼び出し（`useState(0)`、`text.replace(a, b)`、`Array.isArray(value)` など）は対象外です。
+- 型情報がある場合（typescript-eslint の `parserOptions.projectService` や `parserOptions.project` を設定している場合）は、呼び出し先の宣言がどこにあるかで判定します。
+  - 宣言が `node_modules` や TypeScript の標準ライブラリ（`lib.*.d.ts`）にあれば対象外です。
+  - `repository.save(id)` のようなメソッド呼び出しや、自前のクラスを継承したときの `super(...)` も判定できます。
+  - 型が `any` で呼び出し先を特定できない場合は対象外です。
+- 型情報がない場合は、次の呼び出しだけを検査します。メソッド呼び出しと `super(...)` は判定できないため対象外です。
+  - 同じファイル内で定義した関数（関数宣言、関数式やアロー関数を代入した変数）
+  - 相対パス（`./`、`../`）から import した関数
+- `new` 式は対象外です。
 
 ### `yoyoh/prefer-positive-operand-first`
 
