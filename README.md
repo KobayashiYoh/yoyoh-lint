@@ -93,6 +93,7 @@ export default [
 | [`yoyoh/require-logical-expression-variable`](#yoyohrequire-logical-expression-variable) | `&&` と `\|\|` を合わせて2つ以上含む論理式は説明変数に格納する | - |
 | [`yoyoh/require-named-arguments`](#yoyohrequire-named-arguments) | 関数呼び出しの引数はオブジェクト1つにまとめて名前付きで渡す | - |
 | [`yoyoh/prefer-positive-operand-first`](#yoyohprefer-positive-operand-first) | 複合条件では肯定条件を否定条件より先に記述する | ○ |
+| [`yoyoh/no-inline-svg`](#yoyohno-inline-svg) | JSX で `<svg>` をインラインで記述せず、`.svg` ファイルを `<img>` で読み込む | - |
 
 いずれのルールも JavaScript と TypeScript の両方で動作します。型情報は必須ではありませんが、`yoyoh/require-named-arguments` は型情報があるとより正確に判定できます。
 
@@ -190,6 +191,28 @@ if (isActive && !isDeleted) {
 - 真偽値だけが使われる位置（if・while・do-while・for・三項演算子の条件、`!` の被演算子）にある論理式だけを対象にします。変数に格納する論理式は、並べ替えると値が変わりうるため対象外です（例: `!a && b` は `false` か `b` を返す）。
 - 自動修正では、肯定条件と否定条件をそれぞれ元の順序のまま、肯定条件を先に並べ替えます（例: `!a && b && !c && d` → `b && d && !a && !c`）。コメントを含む場合は修正しません。
 - if / else の条件全体が否定になっているケースは、ESLint 本体の `no-negated-condition` で検査してください。
+
+### `yoyoh/no-inline-svg`
+
+JSX で `<svg>` 要素をインラインで記述することを禁止します。SVG は `.svg` ファイルに切り出し、`<img src>` で読み込みます。
+
+```jsx
+// NG
+const icon = (
+  <svg viewBox="0 0 24 24">
+    <path d="M0 0h24v24H0z" />
+  </svg>
+);
+
+// OK
+import iconUrl from "./icon.svg";
+
+const icon = <img src={iconUrl} alt="" />;
+```
+
+- 小文字の組み込み要素 `<svg>` だけを対象にします。`<Svg>` のようなコンポーネントや `<icons.svg>` のようなメンバー参照は対象外です。
+- `<svg>` の中の `<path>` や入れ子の `<svg>` は個別に報告せず、最も外側の `<svg>` だけを報告します。
+- JSX のコードだけを検査するため、`.svg` ファイル自体は対象外です。JSX を解析できるよう、利用側で `parserOptions.ecmaFeatures.jsx` などを設定してください。
 
 ## 開発
 
